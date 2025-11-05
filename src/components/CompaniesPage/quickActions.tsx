@@ -11,9 +11,11 @@ interface QuickActionsProps {
   setFilters: (filters: any) => void;
   clearFilters?: () => void;
   filters?: any;
+  viewMode: ViewMode;
+  setViewMode: (mode: ViewMode) => void;
 }
 
-function QuickActions({ setFilters, clearFilters, filters }: QuickActionsProps) {
+function QuickActions({ setFilters, clearFilters, filters, viewMode, setViewMode }: QuickActionsProps) {
   const {
     companies,
     locations,
@@ -22,7 +24,6 @@ function QuickActions({ setFilters, clearFilters, filters }: QuickActionsProps) 
     addCompany,
     deleteCompany,
   } = useCompanies();
-  const [viewMode, setViewMode] = useState<ViewMode>("table");
 
   return (
     <>
