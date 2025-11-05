@@ -5,7 +5,8 @@ import Filters from "./filters";
 import { Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Table, LayoutGrid } from "lucide-react";
-import type { ViewMode } from "@/types/company";
+import type { Company, ViewMode } from "@/types/company";
+import { CompanyFormDialog } from "./addCompany";
 
 interface QuickActionsProps {
   setFilters: (filters: any) => void;
@@ -13,9 +14,10 @@ interface QuickActionsProps {
   filters?: any;
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
+  onAdd: (company: Omit<Company, "id" | "created_at">) => Promise<Company | undefined>;
 }
 
-function QuickActions({ setFilters, clearFilters, filters, viewMode, setViewMode }: QuickActionsProps) {
+function QuickActions({ setFilters, clearFilters, filters, viewMode, setViewMode, onAdd }: QuickActionsProps) {
   const {
     companies,
     locations,
@@ -78,7 +80,7 @@ function QuickActions({ setFilters, clearFilters, filters, viewMode, setViewMode
               </Button>
             </div>
 
-            {/* <CompanyFormDialog onAdd={addCompany} /> */}
+            <CompanyFormDialog onAdd={addCompany} />
           </div>
         </div>
       </div>

@@ -6,6 +6,7 @@ import { Loader2, Building2 } from "lucide-react";
 import React, { useState } from "react";
 import type { ViewMode } from "@/types/company"
 import { CompanyCardGrid } from "@/components/CompaniesPage/grid";
+import { CompanyFormDialog } from "@/components/CompaniesPage/addCompany";
 
 function CompaniesPage() {
   const [viewMode, setViewMode] = useState<ViewMode>("table")
@@ -13,7 +14,7 @@ function CompaniesPage() {
     id: string;
     name: string;
   } | null>(null);
-  const { companies, isLoading, setFilters, clearFilters, filters  } = useCompanies();
+  const { companies, isLoading, setFilters, clearFilters, filters, addCompany  } = useCompanies();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const handleDelete = (id: string, name: string) => {
@@ -29,6 +30,7 @@ function CompaniesPage() {
           filters={filters}
           viewMode={viewMode}
           setViewMode={setViewMode}
+          onAdd={addCompany}
         />
 
         {isLoading ? (
@@ -46,7 +48,7 @@ function CompaniesPage() {
                   ? "Try adjusting your filters to see more results."
                   : "Get started by adding your first company."}
               </p>
-              {/* {!filters.search && !filters.location && !filters.industry && <CompanyFormDialog onAdd={addCompany} />} */}
+              {!filters.search && !filters.location && !filters.industry && <CompanyFormDialog onAdd={addCompany} />}
             </div>
             ): viewMode === "table" ? (
           <CompanyTable

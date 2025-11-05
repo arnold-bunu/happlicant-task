@@ -4,7 +4,9 @@ import { useState, useEffect, useMemo } from "react"
 import type { Company, CompanyFilters } from "@/types/company"
 import dummyData from "dummyData.json"
 import { GET_COMPANIES } from "@/gql/queries/companies"
-import { useQuery } from "@apollo/client/react";
+import { INSERT_COMPANY, UPDATE_COMPANY, DELETE_COMPANY } from "@/gql/mutations/companies"
+import { useQuery, useMutation } from "@apollo/client/react";
+import { toast } from "sonner"
 
 interface GetCompaniesResponse {
   companies: {
@@ -35,7 +37,11 @@ interface GetCompaniesResponse {
 
 export function useCompanies() {
 
-    const { loading, error, data } = useQuery<GetCompaniesResponse>(GET_COMPANIES);
+    const { loading, error, data, refetch } = useQuery<GetCompaniesResponse>(GET_COMPANIES);
+
+    const [insertCompanyMutation] = useMutation<{ insert_companies_one: Company }>(INSERT_COMPANY);
+    const [updateCompanyMutation] = useMutation(UPDATE_COMPANY);
+    const [deleteCompanyMutation] = useMutation(DELETE_COMPANY);
 
 //  console.log("GraphQL Data:", data);
 
@@ -88,13 +94,11 @@ export function useCompanies() {
           }))
           setCompanies(fetchedCompanies)
         } else {
-          // Fallback to dummy data if no GraphQL data
-          // setCompanies(dummyData as Company[])
+          toast.error("No data received from server.")
         }
       } catch (error) {
         console.error("Error fetching companies:", error)
-        // Fallback to dummy data on error
-        // setCompanies(dummyData as Company[])
+        toast.error("Failed to fetch companies. Please try again.")
       }
       setIsLoading(false)
     }
@@ -109,15 +113,23 @@ export function useCompanies() {
 
     companies.forEach((company) => {
       if (typeof company.location === "string") {
-        locationSet.add(`${company?.location?.city}, ${company?.location?.country}`)
-      } else {
-        locationSet.add(company?.location?.raw_location!)
+        locationSet.add(company.location)
+      } else if (company.location) {
+        const raw = company.location.raw_location
+        if (raw) {
+          locationSet.add(raw)
+        } else {
+          const city = company.location.city ?? ""
+          const country = company.location.country ?? ""
+          const composed = [city, country].filter(Boolean).join(", ")
+          if (composed) locationSet.add(composed)
+        }
       }
 
       if (typeof company.industry === "string") {
         industrySet.add(company.industry)
-      } else {
-        industrySet.add(company?.industry?.primary!)
+      } else if (company.industry && company.industry.primary) {
+        industrySet.add(company.industry.primary)
       }
     })
 
@@ -159,16 +171,57 @@ export function useCompanies() {
 
   // Mock CRUD operations
   const addCompany = async (company: Omit<Company, "id" | "created_at">) => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    const newCompany: Company = {
-      ...company,
-      id: crypto.randomUUID(),
-      created_at: new Date().toISOString(),
+   try {
+    const variables: any = {
+      name: company.name,
+      description: company.description,
+      website: company.website,
+      logo_url: company.logo_url,
+      employee_count: company.employee_count,
+      founded: company.founded,
     }
-    setCompanies((prev) => [newCompany, ...prev])
-    return newCompany
+
+    // adding locatin 
+    if (typeof company.location !== "string" && company.location) {
+      variables.address = company.location.address;
+      variables.city = company.location.city;
+      variables.zip_code = company.location.zip_code;
+      variables.country = company.location.country;
+      variables.raw_location = company.location.raw_location;
+    }
+
+    // adding industry
+          if (typeof company.industry !== "string" && company.industry?.industries) {
+        variables.industry_ids = company.industry.industries.map((id) => ({ industry_id: id }))
+      }
+
+      // Add sector data if available
+      if (typeof company.industry !== "string" && company.industry?.sectors) {
+        variables.sector_ids = company.industry.sectors.map((id) => ({ industry_sector_id: id }))
+      }
+
+      // Add CEO data if available
+      if (typeof company.ceo !== "string" && company.ceo) {
+        variables.ceo_name = company.ceo.name
+        variables.ceo_since = company.ceo.since
+        variables.ceo_bio = company.ceo.bio
+      }
+      
+      const { data } = await insertCompanyMutation({
+        variables,
+      });
+
+      await refetch();
+      // newCompany is returned from the mutation response
+      const newCompany = data?.insert_companies_one;
+      return newCompany!;
+   } catch (error) {
+    console.error("Error adding company:", error);
+    toast.error("Failed to add company. Please try again.");
+   }
   }
 
+      
   const deleteCompany = async (id: string) => {
     await new Promise((resolve) => setTimeout(resolve, 500))
     setCompanies((prev) => prev.filter((c) => c.id !== id))

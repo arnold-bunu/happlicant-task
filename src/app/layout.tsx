@@ -3,6 +3,7 @@ import { Header } from "@/components/Global/header";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import ApolloProviderWrapper from "@/lib/ApolloProviderWrapper";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Happlicant Task",
@@ -24,6 +25,7 @@ export default function RootLayout({
         <ApolloProviderWrapper>
         <Header />
         {children}
+        <Toaster position="top-right" />
         </ApolloProviderWrapper>
       </body>
     </html>
