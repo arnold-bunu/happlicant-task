@@ -10,7 +10,7 @@ function CompaniesPage() {
     id: string;
     name: string;
   } | null>(null);
-  const { companies, isLoading, setFilters } = useCompanies();
+  const { companies, isLoading, setFilters, clearFilters } = useCompanies();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const handleDelete = (id: string, name: string) => {
@@ -20,7 +20,11 @@ function CompaniesPage() {
   return (
     <>
       <div className="bg-background p-5">
-        <QuickActions />
+        <QuickActions 
+          setFilters={setFilters}
+          clearFilters={clearFilters}
+          filters={{}}
+        />
 
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
@@ -34,6 +38,7 @@ function CompaniesPage() {
                 handleDelete(company.id, company.name);
               }
             }}
+            companies={companies}
           />
         )}
       </div>

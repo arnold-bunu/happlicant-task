@@ -7,12 +7,15 @@ import { Button } from "../ui/button";
 import { Table, LayoutGrid } from "lucide-react";
 import type { ViewMode } from "@/types/company";
 
-function QuickActions() {
+interface QuickActionsProps {
+  setFilters: (filters: any) => void;
+  clearFilters?: () => void;
+  filters?: any;
+}
+
+function QuickActions({ setFilters, clearFilters, filters }: QuickActionsProps) {
   const {
     companies,
-    filters,
-    setFilters,
-    clearFilters,
     locations,
     industries,
     isLoading,
@@ -28,7 +31,7 @@ function QuickActions() {
           <Filters
             filters={filters}
             onFiltersChange={setFilters}
-            onClearFilters={clearFilters}
+            onClearFilters={clearFilters!}
             locations={locations}
             industries={industries}
           />

@@ -15,14 +15,17 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { useCompanies } from "@/hooks/useCompanies";
 interface CompanyTableProps {
+  companies?: Company[];
   onDelete: (id: string) => void;
 }
 
-export function CompanyTable({ onDelete }: CompanyTableProps) {
-  const { companies } = useCompanies();
+export function CompanyTable({ companies, onDelete }: CompanyTableProps) {
   const formatLocation = (location: Company["location"]) => {
     if (typeof location === "string") return location;
-    return `${location?.city}, ${location?.country}`;
+    if (location?.city && location?.country) {
+      return `${location.city}, ${location.country}`;
+    }
+    return location?.raw_location || "N/A";
   };
 
   const formatIndustry = (industry: Company["industry"]) => {

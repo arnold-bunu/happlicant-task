@@ -3,8 +3,42 @@
 import { useState, useEffect, useMemo } from "react"
 import type { Company, CompanyFilters } from "@/types/company"
 import dummyData from "dummyData.json"
+import { GET_COMPANIES } from "@/gql/queries/companies"
+import { useQuery } from "@apollo/client/react";
+
+interface GetCompaniesResponse {
+  companies: {
+    id: string;
+    name: string;
+    description?: string;
+    logo_url?: string;
+    website?: string;
+    employee_count?: number;
+    founded?: number;
+    company_locations?: {
+      address?: string;
+      city?: string;
+      zip_code?: string;
+      country?: string;
+      raw_location?: string;
+    }[];
+    company_industries?: {
+      industry_id?: string;
+    }[];
+    ceo?: {
+      name?: string;
+      since?: number;
+      bio?: string;
+    }[];
+  }[];
+}
 
 export function useCompanies() {
+
+    const { loading, error, data } = useQuery<GetCompaniesResponse>(GET_COMPANIES);
+
+//  console.log("GraphQL Data:", data);
+
   const [companies, setCompanies] = useState<Company[]>([])
   const [filters, setFilters] = useState<CompanyFilters>({
     search: "",
@@ -13,18 +47,60 @@ export function useCompanies() {
   })
   const [isLoading, setIsLoading] = useState(true)
 
-  // Simulate API fetch
-  useEffect(() => {
+   useEffect(() => {
     const fetchCompanies = async () => {
       setIsLoading(true)
-      // Simulate network delay
-      await new Promise((resolve) => setTimeout(resolve, 800))
-      setCompanies(dummyData as Company[])
+      try {
+        if (data && data.companies ) {
+          const fetchedCompanies: Company[] = data.companies.map((company: any) => ({
+            id: company.id,
+            name: company.name,
+            website: company.website,
+            logo_url: company.logo_url,
+            founded: company.founded,
+            employee_count: company.employee_count,
+            description: company.description,
+            location:
+              company.company_locations && company.company_locations.length > 0
+                ? {
+                    address: company.company_locations[0].address,
+                    city: company.company_locations[0].city,
+                    zip_code: company.company_locations[0].zip_code,
+                    country: company.company_locations[0].country,
+                    raw_location: company?.company_locations[0]?.raw_location
+                  }
+                : "N/A" ,
+            industry:
+              company.company_industries && company.company_industries.length > 0
+                ? {
+                    primary: company.company_industries[0].industry.name,
+                  }
+                : "N/A",
+            ceo:
+              company.ceo && company.ceo.length > 0
+                ? {
+                    name: company.ceo[0].name,
+                    since: company.ceo[0].since,
+                    bio: company.ceo[0].bio,
+                  }
+                : "N/A",
+            created_at: new Date().toISOString(),
+          }))
+          setCompanies(fetchedCompanies)
+        } else {
+          // Fallback to dummy data if no GraphQL data
+          // setCompanies(dummyData as Company[])
+        }
+      } catch (error) {
+        console.error("Error fetching companies:", error)
+        // Fallback to dummy data on error
+        // setCompanies(dummyData as Company[])
+      }
       setIsLoading(false)
     }
 
     fetchCompanies()
-  }, [])
+  }, [data])
 
   // Extract unique locations and industries
   const { locations, industries } = useMemo(() => {
@@ -33,9 +109,9 @@ export function useCompanies() {
 
     companies.forEach((company) => {
       if (typeof company.location === "string") {
-        locationSet.add(company.location)
-      } else {
         locationSet.add(`${company?.location?.city}, ${company?.location?.country}`)
+      } else {
+        locationSet.add(company?.location?.raw_location!)
       }
 
       if (typeof company.industry === "string") {
