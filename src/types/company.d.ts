@@ -33,4 +33,14 @@ export type Company = {
   employee_count?: number;
   founded?: number;
   ceo?: CEO;
+  created_at: string;
+  active?: boolean; // adding active field for delete operation. 
 };
+
+export type ViewMode = "table" | "grid"
+
+export interface CompanyFilters {
+  search: string
+  location: string
+  industry: string
+}
