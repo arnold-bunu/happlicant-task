@@ -7,6 +7,7 @@ import { GET_COMPANIES } from "@/gql/queries/companies"
 import { INSERT_COMPANY, UPDATE_COMPANY, DELETE_COMPANY } from "@/gql/mutations/companies"
 import { useQuery, useMutation } from "@apollo/client/react";
 import { toast } from "sonner"
+import Image from "next/image";
 
 interface GetCompaniesResponse {
   companies: {
@@ -169,7 +170,7 @@ export function useCompanies() {
     })
   }, [companies, filters])
 
-  // Mock CRUD operations
+// add company
   const addCompany = async (company: Omit<Company, "id" | "created_at">) => {
    try {
     const variables: any = {
@@ -221,17 +222,19 @@ export function useCompanies() {
    }
   }
 
-      
+      // delete company
   const deleteCompany = async (id: string) => {
     await new Promise((resolve) => setTimeout(resolve, 500))
     setCompanies((prev) => prev.filter((c) => c.id !== id))
   }
 
+  // update company
   const updateCompany = async (id: string, updates: Partial<Company>) => {
     await new Promise((resolve) => setTimeout(resolve, 500))
     setCompanies((prev) => prev.map((c) => (c.id === id ? { ...c, ...updates } : c)))
   }
 
+    // clear filters
   const clearFilters = () => {
     setFilters({
       search: "",
@@ -239,6 +242,11 @@ export function useCompanies() {
       industry: "",
     })
   }
+
+
+
+
+                      
 
   return {
     companies: filteredCompanies,

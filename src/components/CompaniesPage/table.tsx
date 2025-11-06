@@ -14,6 +14,7 @@ import { Trash2, ExternalLink, Building2 } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useCompanies } from "@/hooks/useCompanies";
+import CompanyLogo from "./companyLogo";
 interface CompanyTableProps {
   companies?: Company[];
   onDelete: (id: string) => void;
@@ -72,16 +73,7 @@ export function CompanyTable({ companies, onDelete }: CompanyTableProps) {
               <TableCell className="font-medium">
                 <div className="flex items-center gap-3">
                   <div className="bg-muted relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg">
-                    {company.logo_url ? (
-                      <Image
-                        src={`${company?.logo_url}` || "/placeholder.svg"}
-                        alt={company.name}
-                        width={40}
-                        height={40}
-                        className="object-contain"
-                        unoptimized
-                      />
-                    ) : null}
+                      <CompanyLogo logo={company.logo_url ?? ''} name={company.name ?? 'No Logo'} />
                     <Building2 className="text-muted-foreground hidden h-5 w-5" />
                   </div>
                   <div>
