@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
  const GET_COMPANIES = gql`
-   query MyQuery {
-  companies {
+  query MyQuery {
+  companies(where: {active: {_eq: true}}) {
     name
     website
     logo_url

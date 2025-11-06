@@ -1,33 +1,18 @@
-import Image from "next/image";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-function CompanyLogo({
-  logo,
-  name,
-}: {
-  logo: string;
-  name: string;
-}) {
-
-
-    return ( 
+function CompanyLogo({ logo, name }: { logo: string; name: string }) {
+  return (
     <Avatar className="h-10 w-10">
-      {logo ? (
-        <AvatarImage src={logo} alt={name}  />
-      ) : null}
+      {logo ? <AvatarImage src={logo} alt={name} /> : null}
       <AvatarFallback>
         {name
           ?.split(" ")
           .map((word) => word[0])
-            .join("")
-            .toUpperCase()}
-        </AvatarFallback>
+          .join("")
+          .toUpperCase()}
+      </AvatarFallback>
     </Avatar>
-     );
+  );
 }
 
 export default CompanyLogo;

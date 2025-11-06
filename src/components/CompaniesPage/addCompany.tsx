@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -11,26 +11,47 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Plus, Loader2, ChevronRight, ChevronLeft, Building2, MapPin, Briefcase, User } from "lucide-react"
-import { toast } from "sonner"
-import { motion, AnimatePresence } from "framer-motion"
-import type { Company } from "@/types/company"
-import { cn } from "@/lib/utils"
-
-// more error handlig can be added. I just made it a bit simple for going through quickly 
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Plus,
+  Loader2,
+  ChevronRight,
+  ChevronLeft,
+  Building2,
+  MapPin,
+  Briefcase,
+  User,
+} from "lucide-react";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import type { Company } from "@/types/company";
+import { cn } from "@/lib/utils";
 
 const companySchema = z.object({
-  // Basic Info
+  // Basic Company Info
   name: z.string().min(2, "Company name must be at least 2 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters").optional(),
+  description: z
+    .string()
+    .min(10, "Description must be at least 10 characters")
+    .optional(),
   website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   logo_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  employee_count: z.coerce.number().min(1, "Must have at least 1 employee").int().optional(),
+  employee_count: z.coerce
+    .number()
+    .min(1, "Must have at least 1 employee")
+    .int()
+    .optional(),
   founded: z.coerce
     .number()
     .min(1800, "Founded year must be after 1800")
@@ -50,29 +71,50 @@ const companySchema = z.object({
 
   // CEO Info
   ceo_name: z.string().min(2, "CEO name is required"),
-  ceo_since: z.coerce.number().min(1900).max(new Date().getFullYear()).optional(),
+  ceo_since: z.coerce
+    .number()
+    .min(1900)
+    .max(new Date().getFullYear())
+    .optional(),
   ceo_bio: z.string().optional(),
-})
+});
 
-type CompanyFormValues = z.infer<typeof companySchema>
+type CompanyFormValues = z.infer<typeof companySchema>;
 
 interface CompanyFormDialogProps {
-  onAdd: (company: Omit<Company, "id" | "created_at">) => Promise<Company | undefined>
+  onAdd: (
+    company: Omit<Company, "id" | "created_at">,
+  ) => Promise<Company | undefined>;
+  mode?: "create" | "edit";
+  editCompany?: Company;
 }
 
-// thinking of the end user, they dont want this process feeling long. So breaking into steps
 const STEPS = [
-  { id: 1, title: "Basic Info", icon: Building2, description: "Company details" },
-  { id: 2, title: "Location", icon: MapPin, description: "Address information" },
-  { id: 3, title: "Industry", icon: Briefcase, description: "Industry & sectors" },
+  {
+    id: 1,
+    title: "Basic Info",
+    icon: Building2,
+    description: "Company details",
+  },
+  {
+    id: 2,
+    title: "Location",
+    icon: MapPin,
+    description: "Address information",
+  },
+  {
+    id: 3,
+    title: "Industry",
+    icon: Briefcase,
+    description: "Industry & sectors",
+  },
   { id: 4, title: "Leadership", icon: User, description: "CEO information" },
-]
+];
 
 export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [currentStep, setCurrentStep] = useState(1)
-
+  const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
 
   const form = useForm<CompanyFormValues>({
     resolver: zodResolver(companySchema),
@@ -94,40 +136,47 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
       ceo_since: new Date().getFullYear(),
       ceo_bio: "",
     },
-  })
+  });
 
   const nextStep = async () => {
-    const fieldsToValidate = getFieldsForStep(currentStep)
-    const isValid = await form.trigger(fieldsToValidate)
+    const fieldsToValidate = getFieldsForStep(currentStep);
+    const isValid = await form.trigger(fieldsToValidate);
 
     if (isValid && currentStep < STEPS.length) {
-      setCurrentStep(currentStep + 1)
+      setCurrentStep(currentStep + 1);
     }
-  }
+  };
 
   const prevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(currentStep - 1)
+      setCurrentStep(currentStep - 1);
     }
-  }
+  };
 
   const getFieldsForStep = (step: number): (keyof CompanyFormValues)[] => {
     switch (step) {
       case 1:
-        return ["name", "description", "website", "logo_url", "employee_count", "founded"]
+        return [
+          "name",
+          "description",
+          "website",
+          "logo_url",
+          "employee_count",
+          "founded",
+        ];
       case 2:
-        return ["address", "city", "zip_code", "country"]
+        return ["address", "city", "zip_code", "country"];
       case 3:
-        return ["industries", "sectors"]
+        return ["industries", "sectors"];
       case 4:
-        return ["ceo_name", "ceo_since", "ceo_bio"]
+        return ["ceo_name", "ceo_since", "ceo_bio"];
       default:
-        return []
+        return [];
     }
-  }
+  };
 
   const onSubmit = async (values: CompanyFormValues) => {
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       const newCompany: Omit<Company, "id" | "created_at"> = {
         name: values.name,
@@ -151,29 +200,28 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
           since: values.ceo_since || new Date().getFullYear(),
           bio: values.ceo_bio,
         },
-      }
+      };
 
-      await onAdd(newCompany)
+      await onAdd(newCompany);
 
-        toast.success("Company added successfully!")
-
-      form.reset()
-      setCurrentStep(1)
-      setOpen(false)
+      toast.success("Company added successfully!");
+      form.reset();
+      setCurrentStep(1);
+      setOpen(false);
     } catch (error) {
-        toast.error("Failed to add company. Please try again.")
+      toast.error("Failed to add company. Please try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen)
+    setOpen(newOpen);
     if (!newOpen) {
-      setCurrentStep(1)
-      form.reset()
+      setCurrentStep(1);
+      form.reset();
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -183,36 +231,41 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
           Add Company
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="flex max-h-[90vh] max-w-3xl flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>Add New Company</DialogTitle>
           <DialogDescription>
-            Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1]?.description}
+            Step {currentStep} of {STEPS.length}:{" "}
+            {STEPS[currentStep - 1]!.description}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6 flex items-center justify-between">
           {STEPS.map((step, index) => {
-            const Icon = step.icon
-            const isActive = currentStep === step.id
-            const isCompleted = currentStep > step.id
+            const Icon = step.icon;
+            const isActive = currentStep === step.id;
+            const isCompleted = currentStep > step.id;
 
             return (
-              <div key={step.id} className="flex items-center flex-1">
-                <div className="flex flex-col items-center flex-1">
+              <div key={step.id} className="flex flex-1 items-center">
+                <div className="flex flex-1 flex-col items-center">
                   <div
                     className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all",
-                      isActive && "border-primary bg-primary text-primary-foreground",
-                      isCompleted && "border-primary bg-primary text-primary-foreground",
-                      !isActive && !isCompleted && "border-muted bg-background text-muted-foreground",
+                      "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all",
+                      isActive &&
+                        "border-primary bg-primary text-primary-foreground",
+                      isCompleted &&
+                        "border-primary bg-primary text-primary-foreground",
+                      !isActive &&
+                        !isCompleted &&
+                        "border-muted bg-background text-muted-foreground",
                     )}
                   >
                     <Icon className="h-5 w-5" />
                   </div>
                   <span
                     className={cn(
-                      "text-xs mt-2 font-medium",
+                      "mt-2 text-xs font-medium",
                       isActive && "text-foreground",
                       !isActive && "text-muted-foreground",
                     )}
@@ -223,18 +276,21 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                 {index < STEPS.length - 1 && (
                   <div
                     className={cn(
-                      "h-[2px] flex-1 mx-2 transition-all",
+                      "mx-2 h-[2px] flex-1 transition-all",
                       currentStep > step.id ? "bg-primary" : "bg-muted",
                     )}
                   />
                 )}
               </div>
-            )
+            );
           })}
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex-1 overflow-y-auto"
+          >
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
                 <motion.div
@@ -244,7 +300,7 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-4"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <FormField
                       control={form.control}
                       name="name"
@@ -266,7 +322,11 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                         <FormItem>
                           <FormLabel>Website</FormLabel>
                           <FormControl>
-                            <Input placeholder="https://example.com" type="url" {...field} />
+                            <Input
+                              placeholder="https://example.com"
+                              type="url"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -300,14 +360,18 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                       <FormItem>
                         <FormLabel>Logo URL</FormLabel>
                         <FormControl>
-                          <Input placeholder="https://example.com/logo.png" type="url" {...field} />
+                          <Input
+                            placeholder="https://example.com/logo.png"
+                            type="url"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <FormField
                       control={form.control}
                       name="employee_count"
@@ -315,7 +379,12 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                         <FormItem>
                           <FormLabel>Employee Count</FormLabel>
                           <FormControl>
-                            <Input type="number" placeholder="1000" min="1" {...field} />
+                            <Input
+                              type="number"
+                              placeholder="1000"
+                              min="1"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -367,7 +436,7 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                     )}
                   />
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <FormField
                       control={form.control}
                       name="city"
@@ -418,7 +487,10 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                       <FormItem>
                         <FormLabel>Raw Location (Optional)</FormLabel>
                         <FormControl>
-                          <Input placeholder="Additional location details" {...field} />
+                          <Input
+                            placeholder="Additional location details"
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -449,8 +521,8 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                               const industries = e.target.value
                                 .split(",")
                                 .map((i) => i.trim())
-                                .filter(Boolean)
-                              field.onChange(industries)
+                                .filter(Boolean);
+                              field.onChange(industries);
                             }}
                           />
                         </FormControl>
@@ -464,7 +536,9 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                     name="sectors"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Industry Sectors (comma-separated)</FormLabel>
+                        <FormLabel>
+                          Industry Sectors (comma-separated)
+                        </FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="Enterprise Software, SaaS, AI/ML, Cybersecurity"
@@ -475,8 +549,8 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                               const sectors = e.target.value
                                 .split(",")
                                 .map((s) => s.trim())
-                                .filter(Boolean)
-                              field.onChange(sectors)
+                                .filter(Boolean);
+                              field.onChange(sectors);
                             }}
                           />
                         </FormControl>
@@ -485,10 +559,11 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                     )}
                   />
 
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <p className="text-sm text-muted-foreground">
-                      <strong>Tip:</strong> Separate multiple industries or sectors with commas. The first industry will
-                      be set as the primary industry.
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <p className="text-muted-foreground text-sm">
+                      <strong>Tip:</strong> Separate multiple industries or
+                      sectors with commas. The first industry will be set as the
+                      primary industry.
                     </p>
                   </div>
                 </motion.div>
@@ -502,7 +577,7 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-4"
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <FormField
                       control={form.control}
                       name="ceo_name"
@@ -560,7 +635,7 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
               )}
             </AnimatePresence>
 
-            <div className="flex justify-between gap-3 pt-6 mt-6 border-t">
+            <div className="mt-6 flex justify-between gap-3 border-t pt-6">
               <Button
                 type="button"
                 variant="outline"
@@ -573,18 +648,30 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
               </Button>
 
               <div className="flex gap-3">
-                <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isSubmitting}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleOpenChange(false)}
+                  disabled={isSubmitting}
+                >
                   Cancel
                 </Button>
 
                 {currentStep < STEPS.length ? (
-                  <Button type="button" onClick={nextStep} disabled={isSubmitting} className="gap-2">
+                  <Button
+                    type="button"
+                    onClick={nextStep}
+                    disabled={isSubmitting}
+                    className="gap-2"
+                  >
                     Next
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 ) : (
                   <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {isSubmitting && (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    )}
                     Add Company
                   </Button>
                 )}
@@ -594,5 +681,5 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
         </Form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
