@@ -8,7 +8,7 @@
  * Displays columns for company name, location, industry, number of employees, founding year, creation date, and actions.
  */
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import type { Company } from "@/types/company";
 import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import TableContent from "./tableContent";

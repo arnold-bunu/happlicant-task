@@ -11,15 +11,14 @@
  * Displays filter controls, company count, view mode toggles, and an add company dialog.
  */
 "use-client";
-import React, { useState } from "react";
+import React from "react";
 import { useCompanies } from "@/hooks/useCompanies";
 import Filters from "./filters";
 import { Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Table, LayoutGrid } from "lucide-react";
-import type { Company, ViewMode } from "@/types/company";
+import type { Company, ViewMode, CompanyFilters } from "@/types/company";
 import { CompanyFormDialog } from "./addCompany";
-import { todo } from "node:test";
 
 interface QuickActionsProps {
   setFilters: (filters: any) => void;

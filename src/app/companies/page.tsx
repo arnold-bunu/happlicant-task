@@ -30,7 +30,7 @@ export default function CompaniesPage() {
 
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("viewMode") as ViewMode) || "table";
+      return (localStorage.getItem("viewMode") as ViewMode) ?? "table";
     }
     return "table";
   });
@@ -56,6 +56,7 @@ export default function CompaniesPage() {
       toast.success("Company deleted successfully!");
     } catch (error) {
       toast.error("Failed to delete company. Please try again.");
+      toast.error((error as Error).message);
     } finally {
       setCompanyToDelete(null);
     }
@@ -193,7 +194,7 @@ export default function CompaniesPage() {
                 No companies found
               </h3>
               <p className="text-muted-foreground mb-6 max-w-sm">
-                {filters.search || filters.location || filters.industry
+                {(filters.search ?? filters.location ?? filters.industry)
                   ? "Try adjusting your filters to see more results."
                   : "Get started by adding your first company."}
               </p>
@@ -228,7 +229,7 @@ export default function CompaniesPage() {
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         onConfirm={confirmDelete}
-        companyName={companyToDelete?.name || ""}
+        companyName={companyToDelete?.name ?? ""}
       />
 
       {/* Edit Company Dialog */}

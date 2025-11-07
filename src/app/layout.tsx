@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import { Header } from "@/components/Global/header";
+// import { Header } from "@/components/Global/header";
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 import ApolloProviderWrapper from "@/lib/ApolloProviderWrapper";

@@ -98,9 +98,9 @@ export function EditCompanyDialog({
     if (company) {
       form.reset({
         name: company.name,
-        description: company.description || "",
-        website: company.website || "",
-        logo_url: company.logo_url || "",
+        description: company.description ?? "",
+        website: company.website ?? "",
+        logo_url: company.logo_url ?? "",
         employee_count: company.employee_count,
         founded: company.founded,
       });

@@ -183,11 +183,11 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
     try {
       const newCompany: Omit<Company, "id" | "created_at"> = {
         name: values.name,
-        description: values.description || "",
-        website: values.website || "",
-        logo_url: values.logo_url || "",
-        employee_count: values.employee_count || 0,
-        founded: values.founded || new Date().getFullYear(),
+        description: values.description ?? "",
+        website: values.website ?? "",
+        logo_url: values.logo_url ?? "",
+        employee_count: values.employee_count ?? 0,
+        founded: values.founded ?? new Date().getFullYear(),
         location: {
           address: values.address,
           city: values.city,
@@ -196,14 +196,14 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
           raw_location: values.raw_location,
         },
         industry: {
-          primary: values.industries[0] || "",
-          industries: values.industries || [],
-          sectors: values.sectors || [],
+          primary: values.industries[0] ?? "",
+          industries: values.industries ?? [],
+          sectors: values.sectors ?? [],
         },
         ceo: {
           name: values.ceo_name,
-          since: values.ceo_since || new Date().getFullYear(),
-          bio: values.ceo_bio || "",
+          since: values.ceo_since ?? new Date().getFullYear(),
+          bio: values.ceo_bio ?? "",
         },
       };
 
@@ -522,7 +522,7 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                         <FormControl>
                           <Input
                             placeholder="Technology, Software, Cloud Computing"
-                            value={field.value?.join(", ") || ""}
+                            value={field.value?.join(", ") ?? ""}
                             onChange={(e) => {
                               const industries = e.target.value
                                 .split(",")
@@ -550,7 +550,7 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                             placeholder="Enterprise Software, SaaS, AI/ML, Cybersecurity"
                             className="resize-none"
                             rows={3}
-                            value={field.value?.join(", ") || ""}
+                            value={field.value?.join(", ") ?? ""}
                             onChange={(e) => {
                               const sectors = e.target.value
                                 .split(",")

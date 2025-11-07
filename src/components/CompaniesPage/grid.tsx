@@ -63,7 +63,7 @@ export function CompanyCardGrid({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => onEdit && onEdit(company)}
+                    onClick={() => (onEdit ? onEdit(company) : null)}
                     className="opacity-0 transition-opacity group-hover:opacity-100"
                   >
                     <PenSquareIcon className="h-4 w-4" />

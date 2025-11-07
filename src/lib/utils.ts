@@ -14,14 +14,14 @@ export const formatLocation = (location: Company["location"]): string => {
   if (location?.city && location?.country) {
     return `${location.city}, ${location.country}`;
   }
-  return location?.raw_location || "N/A";
+  return location?.raw_location ?? "N/A";
 };
 
 // format the industry for display
 export const formatIndustry = (industry: Company["industry"]): string => {
   if (!industry) return "N/A";
   if (typeof industry === "string") return industry;
-  return industry!.primary! || "N/A";
+  return industry!.primary! ?? "N/A";
 };
 
 // format date

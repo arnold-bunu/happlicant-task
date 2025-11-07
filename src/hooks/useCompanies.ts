@@ -37,8 +37,6 @@ import {
   INSERT_COMPANY,
   UPDATE_COMPANY,
   DELETE_COMPANY,
-  INSERT_COMPANY_INDUSTRY,
-  INSERT_COMPANY_INDUSTRY_SECTOR,
   INSERT_INDUSRTY,
   INSERT_SECTOR,
   INSERT_COMPANY_LOCATION,
@@ -74,21 +72,12 @@ interface GetCompaniesResponse {
 }
 
 export function useCompanies() {
-  const { loading, error, data, refetch } =
-    useQuery<GetCompaniesResponse>(GET_COMPANIES);
+  const { data, refetch } = useQuery<GetCompaniesResponse>(GET_COMPANIES);
   const [insertCompanyMutation] = useMutation<{
     insert_companies_one: Company;
   }>(INSERT_COMPANY);
   const [updateCompanyMutation] = useMutation(UPDATE_COMPANY);
   const [deleteCompanyMutation] = useMutation(DELETE_COMPANY);
-  const [insertCompanyIndustryMutation] = useMutation<
-    { insert_companies_industries_one: { id: string } },
-    { company_id: string; industry_id: string }
-  >(INSERT_COMPANY_INDUSTRY);
-  const [insertCompanyIndustrySectorMutation] = useMutation<
-    { insert_companies_industry_sectors_one: { id: string } },
-    { company_id: string; sector_id: string }
-  >(INSERT_COMPANY_INDUSTRY_SECTOR);
   const [insertIndustryMutation] = useMutation<
     { insert_industries_one: { id: string } },
     { name: string }

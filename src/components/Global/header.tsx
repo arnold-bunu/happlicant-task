@@ -20,7 +20,7 @@
  */
 
 'use client";';
-import { Building2, User } from "lucide-react";
+import { User } from "lucide-react";
 import React from "react";
 import { usePathname } from "next/navigation";
 
