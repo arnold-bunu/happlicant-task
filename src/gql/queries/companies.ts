@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 
 const GET_COMPANIES = gql`
   query MyQuery {
-    companies(where: { active: { _eq: true } }) {
+    companies(where: { active: { _eq: true } }, limit: 10) {
       name
       website
       logo_url
