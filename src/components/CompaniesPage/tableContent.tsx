@@ -70,6 +70,7 @@ function TableContent({ companies, onDelete, onEdit }: TableContentProps) {
           <TableCell className="text-right">
             {onEdit && (
               <Button
+                aria-label="edit"
                 variant="ghost"
                 size="icon"
                 onClick={() => onEdit(company)}
@@ -78,6 +79,7 @@ function TableContent({ companies, onDelete, onEdit }: TableContentProps) {
               </Button>
             )}
             <Button
+              aria-label="delete"
               variant="ghost"
               size="icon"
               onClick={() => onDelete(company.id)}
