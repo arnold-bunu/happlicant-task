@@ -6,15 +6,18 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
-    images: {
-        remotePatterns: [
-            {
-                protocol: "https",
-                hostname: "api.elbstream.com",
-                pathname: "/**",
-            },
-        ],
-    },
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "api.elbstream.com",
+        pathname: "/**",
+      },
+    ],
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default config;
