@@ -17,6 +17,9 @@ export const env = createEnv({
    */
   client: {
     // NEXT_PUBLIC_CLIENTVAR: z.string(),
+    NEXT_PUBLIC_HASURA_GRAPHQL_ENDPOINT: z
+      .string()
+      .default("https://strong-ocelot-51.hasura.app/v1/graphql"),
   },
 
   /**
@@ -25,7 +28,8 @@ export const env = createEnv({
    */
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
-    // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
+    NEXT_PUBLIC_HASURA_GRAPHQL_ENDPOINT:
+      process.env.NEXT_PUBLIC_HASURA_GRAPHQL_ENDPOINT,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

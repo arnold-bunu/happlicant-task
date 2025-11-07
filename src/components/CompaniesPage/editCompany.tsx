@@ -1,5 +1,24 @@
+/**
+ * A dialog component for editing company information.
+ *
+ * @component
+ * @param {Object} props - The component props
+ * @param {Company} props.company - The company object containing the current company data
+ * @param {boolean} props.open - Controls the visibility of the dialog
+ * @param {(open: boolean) => void} props.onOpenChange - Callback function when dialog open state changes
+ * @param {(id: string, data: EditCompanyFormValues) => Promise<void>} props.onUpdate - Callback function to handle company update
+ *
+ * @example
+ * ```tsx
+ * <EditCompanyDialog
+ *   company={companyData}
+ *   open={isOpen}
+ *   onOpenChange={setIsOpen}
+ *   onUpdate={handleUpdateCompany}
+ * />
+ * ```
+ */
 "use client";
-
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -91,6 +110,7 @@ export function EditCompanyDialog({
   const onSubmit = async (values: EditCompanyFormValues) => {
     if (!company) return;
 
+    // only changing these values for demo purposes.
     setIsSubmitting(true);
     try {
       await onUpdate(company.id, {
@@ -101,9 +121,7 @@ export function EditCompanyDialog({
         employee_count: values.employee_count || 0,
         founded: values.founded || new Date().getFullYear(),
       });
-
       toast.success("Company updated successfully!");
-
       onOpenChange(false);
     } catch (error) {
       toast.error("Failed to update company. Please try again.");

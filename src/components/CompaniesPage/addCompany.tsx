@@ -1,5 +1,4 @@
 "use client";
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -138,6 +137,7 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
     },
   });
 
+  // getting next step with validation
   const nextStep = async () => {
     const fieldsToValidate = getFieldsForStep(currentStep);
     const isValid = await form.trigger(fieldsToValidate);
@@ -147,12 +147,14 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
     }
   };
 
+  // getting previous step
   const prevStep = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
   };
 
+  // determining fields to validate per step
   const getFieldsForStep = (step: number): (keyof CompanyFormValues)[] => {
     switch (step) {
       case 1:
@@ -165,7 +167,7 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
           "founded",
         ];
       case 2:
-        return ["address", "city", "zip_code", "country"];
+        return ["address", "city", "zip_code", "country", "raw_location"];
       case 3:
         return ["industries", "sectors"];
       case 4:
@@ -177,28 +179,31 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
 
   const onSubmit = async (values: CompanyFormValues) => {
     setIsSubmitting(true);
+
     try {
       const newCompany: Omit<Company, "id" | "created_at"> = {
         name: values.name,
         description: values.description || "",
         website: values.website || "",
         logo_url: values.logo_url || "",
+        employee_count: values.employee_count || 0,
+        founded: values.founded || new Date().getFullYear(),
         location: {
           address: values.address,
           city: values.city,
           zip_code: values.zip_code,
           country: values.country,
+          raw_location: values.raw_location,
         },
         industry: {
-          primary: values.industries[0]!,
-          sectors: values.sectors,
+          primary: values.industries[0] || "",
+          industries: values.industries || [],
+          sectors: values.sectors || [],
         },
-        employee_count: values.employee_count || 0,
-        founded: values.founded || new Date().getFullYear(),
         ceo: {
           name: values.ceo_name,
           since: values.ceo_since || new Date().getFullYear(),
-          bio: values.ceo_bio,
+          bio: values.ceo_bio || "",
         },
       };
 
@@ -207,8 +212,9 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
       toast.success("Company added successfully!");
       form.reset();
       setCurrentStep(1);
-      setOpen(false);
+      setOpen?.(false);
     } catch (error) {
+      console.error("Error adding company:", error);
       toast.error("Failed to add company. Please try again.");
     } finally {
       setIsSubmitting(false);

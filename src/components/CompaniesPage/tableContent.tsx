@@ -1,11 +1,22 @@
+/**
+ * Renders the table body content for a list of companies, displaying details such as logo, name, website, location, etc.
+ * Provides edit and delete actions for each company row.
+ *
+ * @param companies - Array of company objects to display in the table.
+ * @param onDelete - Callback function invoked when the delete button is clicked, receives the company ID.
+ * @param onEdit - Optional callback function invoked when the edit button is clicked, receives the company object.
+ *
+ * @returns TableBody element containing animated table rows for each company.
+ */
+
 "use client";
 import { motion } from "framer-motion";
 import { TableBody, TableCell } from "@/components/ui/table";
 import { ExternalLink, Building2, Trash2, PenSquareIcon } from "lucide-react";
 import CompanyLogo from "./companyLogo";
 import type { Company } from "@/types/company";
-import { useCompanies } from "@/hooks/useCompanies";
 import { Button } from "@/components/ui/button";
+import { formatLocation, formatIndustry, formatDate } from "@/lib/utils";
 
 interface TableContentProps {
   companies?: Company[];
@@ -14,7 +25,6 @@ interface TableContentProps {
 }
 
 function TableContent({ companies, onDelete, onEdit }: TableContentProps) {
-  const { formatLocation, formatIndustry, formatDate } = useCompanies();
   return (
     <TableBody>
       {companies?.map((company, index) => (

@@ -1,3 +1,15 @@
+/**
+ * QuickActions component provides UI controls for filtering, viewing, and adding companies.
+ *
+ * @param setFilters - Function to update the current filters.
+ * @param clearFilters - Optional function to clear all filters.
+ * @param filters - Current filter values.
+ * @param viewMode - Current view mode ("table" or "grid").
+ * @param setViewMode - Function to update the view mode.
+ * @param onAdd - Function to handle adding a new company.
+ *
+ * Displays filter controls, company count, view mode toggles, and an add company dialog.
+ */
 "use-client";
 import React, { useState } from "react";
 import { useCompanies } from "@/hooks/useCompanies";
@@ -7,6 +19,7 @@ import { Button } from "../ui/button";
 import { Table, LayoutGrid } from "lucide-react";
 import type { Company, ViewMode } from "@/types/company";
 import { CompanyFormDialog } from "./addCompany";
+import { todo } from "node:test";
 
 interface QuickActionsProps {
   setFilters: (filters: any) => void;
@@ -14,18 +27,20 @@ interface QuickActionsProps {
   filters?: any;
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
-  onAdd: (company: Omit<Company, "id" | "created_at">) => Promise<Company | undefined>;
+  onAdd: (
+    company: Omit<Company, "id" | "created_at">,
+  ) => Promise<Company | undefined>;
 }
 
-function QuickActions({ setFilters, clearFilters, filters, viewMode, setViewMode, onAdd }: QuickActionsProps) {
-  const {
-    companies,
-    locations,
-    industries,
-    isLoading,
-    addCompany,
-    deleteCompany,
-  } = useCompanies();
+function QuickActions({
+  setFilters,
+  clearFilters,
+  filters,
+  viewMode,
+  setViewMode,
+}: QuickActionsProps) {
+  const { companies, locations, industries, isLoading, addCompany } =
+    useCompanies();
 
   return (
     <>
@@ -79,7 +94,7 @@ function QuickActions({ setFilters, clearFilters, filters, viewMode, setViewMode
                 Grid
               </Button>
             </div>
-
+            {/* add company box */}
             <CompanyFormDialog onAdd={addCompany} />
           </div>
         </div>

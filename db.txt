@@ -1,0 +1,74 @@
+-- Enable UUID generation
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- ===========================
+-- Companies
+-- ===========================
+CREATE TABLE companies (
+    id UUID PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    logo_url TEXT,
+    website TEXT,
+    employee_count INT,
+    founded INT
+);
+
+-- ===========================
+-- Company Locations
+-- ===========================
+CREATE TABLE company_locations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    address TEXT,
+    city TEXT,
+    zip_code TEXT,
+    country TEXT,
+    raw_location TEXT
+);
+
+-- ===========================
+-- Industries
+-- ===========================
+CREATE TABLE industries (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT UNIQUE NOT NULL
+);
+
+-- ===========================
+-- Company → Industry
+-- ===========================
+CREATE TABLE company_industry (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    industry_id UUID NOT NULL REFERENCES industries(id)
+);
+
+-- ===========================
+-- Industry Sectors
+-- ===========================
+CREATE TABLE industry_sectors (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT UNIQUE NOT NULL
+);
+
+-- ===========================
+-- Company → Industry Sectors (many-to-many)
+-- ===========================
+CREATE TABLE company_industry_sectors (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    sector_id UUID NOT NULL REFERENCES industry_sectors(id)
+);
+
+-- ===========================
+-- CEOs
+-- ===========================
+CREATE TABLE ceos (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    since INT,
+    bio TEXT
+);
+

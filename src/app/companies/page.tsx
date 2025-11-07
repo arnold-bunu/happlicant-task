@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCompanies } from "@/hooks/useCompanies";
 import CompanyFilters from "@/components/CompaniesPage/filters";
 import { CompanyTable } from "@/components/CompaniesPage/table";
@@ -13,6 +12,7 @@ import { LayoutGrid, Table, Building2, Loader2 } from "lucide-react";
 import type { ViewMode, Company } from "@/types/company";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { Header } from "@/components/Global/header";
 
 export default function CompaniesPage() {
   const {
@@ -28,7 +28,13 @@ export default function CompaniesPage() {
     updateCompany,
   } = useCompanies();
 
-  const [viewMode, setViewMode] = useState<ViewMode>("table");
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("viewMode") as ViewMode) || "table";
+    }
+    return "table";
+  });
+  const [hydrated, setHydrated] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [companyToDelete, setCompanyToDelete] = useState<{
     id: string;
@@ -64,14 +70,31 @@ export default function CompaniesPage() {
     await updateCompany(id, updates);
   };
 
+  useEffect(() => {
+    const saved = localStorage.getItem("viewMode") as ViewMode | null;
+    if (saved) setViewMode(saved);
+    setHydrated(true);
+  }, []);
+
+  // Save whenever viewMode changes (but only after hydration)
+  useEffect(() => {
+    if (!hydrated) return;
+    localStorage.setItem("viewMode", viewMode);
+  }, [viewMode, hydrated]);
+
+  if (!hydrated) {
+    return null;
+  }
+
   return (
-    <div className="bg-background min-h-screen">
-      <div className="container mx-auto max-w-7xl px-4 py-8">
+    <div className="bg-background flex h-screen flex-col">
+      <Header />
+      <div className="mx-auto flex flex-1 flex-col overflow-hidden px-4 py-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+          className="mb-8 flex-shrink-0"
         >
           <div className="mb-2 flex items-center gap-3">
             <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-xl">
@@ -93,7 +116,7 @@ export default function CompaniesPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-6 space-y-4"
+          className="mb-6 flex-shrink-0 space-y-4"
         >
           <div className="flex flex-col justify-between gap-4 sm:flex-row">
             <CompanyFilters
@@ -155,6 +178,7 @@ export default function CompaniesPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
+          className="flex-1 overflow-auto"
         >
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
@@ -207,6 +231,7 @@ export default function CompaniesPage() {
         companyName={companyToDelete?.name || ""}
       />
 
+      {/* Edit Company Dialog */}
       <EditCompanyDialog
         company={companyToEdit}
         open={editDialogOpen}

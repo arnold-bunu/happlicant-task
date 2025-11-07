@@ -1,3 +1,34 @@
+/**
+ * Custom React hook for managing companies data and related operations.
+ *
+ * This hook provides functionality to fetch, filter, add, update, and delete companies,
+ * as well as manage associated locations, industries, and sectors. It also exposes
+ *
+ * @returns An object containing:
+ * - `companies`: The filtered list of companies based on current filters.
+ * - `allCompanies`: The complete list of companies fetched from the server.
+ * - `filters`: The current filter values for searching, location, and industry.
+ * - `setFilters`: Function to update the filter values.
+ * - `clearFilters`: Function to reset all filters to their default values.
+ * - `locations`: Array of unique company locations for filtering.
+ * - `industries`: Array of unique company industries for filtering.
+ * - `isLoading`: Boolean indicating if companies data is currently loading.
+ * - `addCompany`: Async function to add a new company and its related data.
+ * - `deleteCompany`: Async function to delete a company by its ID.
+ * - `updateCompany`: Async function to update an existing company's data.
+
+ *
+ * @example
+ * const {
+ *   companies,
+ *   filters,
+ *   setFilters,
+ *   addCompany,
+ *   deleteCompany,
+ *   updateCompany,
+ *   isLoading,
+ * } = useCompanies();
+ */
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import type { Company, CompanyFilters } from "@/types/company";
@@ -6,6 +37,11 @@ import {
   INSERT_COMPANY,
   UPDATE_COMPANY,
   DELETE_COMPANY,
+  INSERT_COMPANY_INDUSTRY,
+  INSERT_COMPANY_INDUSTRY_SECTOR,
+  INSERT_INDUSRTY,
+  INSERT_SECTOR,
+  INSERT_COMPANY_LOCATION,
 } from "@/gql/mutations/companies";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { toast } from "sonner";
@@ -40,15 +76,38 @@ interface GetCompaniesResponse {
 export function useCompanies() {
   const { loading, error, data, refetch } =
     useQuery<GetCompaniesResponse>(GET_COMPANIES);
-
   const [insertCompanyMutation] = useMutation<{
     insert_companies_one: Company;
   }>(INSERT_COMPANY);
   const [updateCompanyMutation] = useMutation(UPDATE_COMPANY);
   const [deleteCompanyMutation] = useMutation(DELETE_COMPANY);
-
-  //  console.log("GraphQL Data:", data);
-
+  const [insertCompanyIndustryMutation] = useMutation<
+    { insert_companies_industries_one: { id: string } },
+    { company_id: string; industry_id: string }
+  >(INSERT_COMPANY_INDUSTRY);
+  const [insertCompanyIndustrySectorMutation] = useMutation<
+    { insert_companies_industry_sectors_one: { id: string } },
+    { company_id: string; sector_id: string }
+  >(INSERT_COMPANY_INDUSTRY_SECTOR);
+  const [insertIndustryMutation] = useMutation<
+    { insert_industries_one: { id: string } },
+    { name: string }
+  >(INSERT_INDUSRTY);
+  const [insertSectorMutation] = useMutation<
+    { insert_industry_sectors_one?: { id: string } },
+    { name: string }
+  >(INSERT_SECTOR);
+  const [insertCompanyLocationMutation] = useMutation<
+    { insert_company_locations_one: { id: string } },
+    {
+      company_id: string;
+      address?: string;
+      city?: string;
+      zip_code?: string;
+      country?: string;
+      raw_location?: string;
+    }
+  >(INSERT_COMPANY_LOCATION);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [filters, setFilters] = useState<CompanyFilters>({
     search: "",
@@ -63,42 +122,57 @@ export function useCompanies() {
       try {
         if (data && data.companies) {
           const fetchedCompanies: Company[] = data.companies.map(
-            (company: any) => ({
-              id: company.id,
-              name: company.name,
-              website: company.website,
-              logo_url: company.logo_url,
-              founded: company.founded,
-              employee_count: company.employee_count,
-              description: company.description,
-              location:
+            (company: any) => {
+              const loc =
                 company.company_locations &&
                 company.company_locations.length > 0
-                  ? {
-                      address: company.company_locations[0].address,
-                      city: company.company_locations[0].city,
-                      zip_code: company.company_locations[0].zip_code,
-                      country: company.company_locations[0].country,
-                      raw_location: company?.company_locations[0]?.raw_location,
-                    }
-                  : "N/A",
-              industry:
+                  ? company.company_locations[0]
+                  : undefined;
+
+              const location = loc
+                ? {
+                    address: loc.address,
+                    city: loc.city,
+                    zip_code: loc.zip_code,
+                    country: loc.country,
+                    raw_location: loc?.raw_location,
+                  }
+                : undefined;
+
+              const industry =
                 company.company_industries &&
                 company.company_industries.length > 0
                   ? {
-                      primary: company.company_industries[0].industry.name,
+                      industries: company.company_industries.map(
+                        (ci: any) => ci.industry?.name,
+                      ),
+                      primary: company.company_industries[0].industry?.name,
                     }
-                  : "N/A",
-              ceo:
+                  : undefined;
+
+              const ceo =
                 company.ceo && company.ceo.length > 0
                   ? {
                       name: company.ceo[0].name,
                       since: company.ceo[0].since,
                       bio: company.ceo[0].bio,
                     }
-                  : "N/A",
-              created_at: new Date().toISOString(),
-            }),
+                  : undefined;
+
+              return {
+                id: company.id,
+                name: company.name,
+                website: company.website,
+                logo_url: company.logo_url,
+                founded: company.founded,
+                employee_count: company.employee_count,
+                description: company.description,
+                location,
+                industry,
+                ceo,
+                created_at: new Date().toISOString(),
+              };
+            },
           );
           setCompanies(fetchedCompanies);
         } else {
@@ -110,11 +184,10 @@ export function useCompanies() {
       }
       setIsLoading(false);
     };
-
     fetchCompanies();
   }, [data]);
 
-  // Extract unique locations and industries
+  // Extract  locations and industries
   const { locations, industries } = useMemo(() => {
     const locationSet = new Set<string>();
     const industrySet = new Set<string>();
@@ -185,55 +258,71 @@ export function useCompanies() {
   // add company
   const addCompany = async (company: Omit<Company, "id" | "created_at">) => {
     try {
-      const variables: any = {
-        name: company.name,
-        description: company.description,
-        website: company.website,
-        logo_url: company.logo_url,
-        employee_count: company.employee_count,
-        founded: company.founded,
-      };
-
-      // adding locatin
-      if (typeof company.location !== "string" && company.location) {
-        variables.address = company.location.address;
-        variables.city = company.location.city;
-        variables.zip_code = company.location.zip_code;
-        variables.country = company.location.country;
-        variables.raw_location = company.location.raw_location;
+      const industryIds: string[] = [];
+      if (company.industry?.industries?.length) {
+        for (const name of company.industry.industries) {
+          const { data } = await insertIndustryMutation({
+            variables: { name },
+          });
+          industryIds.push(data!.insert_industries_one.id);
+        }
       }
 
-      // adding industry
-      if (typeof company.industry !== "string" && company.industry?.sectors) {
-        variables.industry_ids = company.industry.sectors.map((id) => ({
-          industry_id: id,
-        }));
+      const sectorIds: string[] = [];
+      if (company.industry?.sectors?.length) {
+        for (const name of company.industry.sectors) {
+          const { data } = await insertSectorMutation({
+            variables: { name },
+          });
+          sectorIds.push(data!.insert_industry_sectors_one!.id);
+        }
       }
 
-      // Add sector data if available
-      if (typeof company.industry !== "string" && company.industry?.sectors) {
-        variables.sector_ids = company.industry.sectors.map((id) => ({
-          industry_sector_id: id,
-        }));
-      }
-
-      // Add CEO data if available
-      if (typeof company.ceo !== "string" && company.ceo) {
-        variables.ceo_name = company.ceo.name;
-        variables.ceo_since = company.ceo.since;
-        variables.ceo_bio = company.ceo.bio;
-      }
-
-      const { data } = await insertCompanyMutation({
-        variables,
+      // Insert company
+      const { data: companyData } = await insertCompanyMutation({
+        variables: {
+          name: company.name,
+          description: company.description,
+          website: company.website,
+          logo_url: company.logo_url,
+          employee_count: company.employee_count,
+          founded: company.founded,
+        },
       });
+      const companyId = companyData?.insert_companies_one.id;
 
-      await refetch(); // refetch companies after adding
-      const newCompany = data?.insert_companies_one;
-      return newCompany!;
+      // Insert location
+      if (company.location) {
+        await insertCompanyLocationMutation({
+          variables: {
+            company_id: companyId!,
+            address: company.location.address,
+            city: company.location.city,
+            zip_code: company.location.zip_code,
+            country: company.location.country,
+            raw_location: company.location.raw_location,
+          },
+        });
+      }
+      // // Link industries
+      // for (const industryId of industryIds) {
+      //   await insertCompanyIndustryMutation({
+      //     variables: { company_id: companyId, industry_id: industryId },
+      //   });
+      // }
+
+      // // Link sectors
+      // for (const sectorId of sectorIds) {
+      //   await insertCompanyIndustrySectorMutation({
+      //     variables: { company_id: companyId, sector_id: sectorId },
+      //   });
+      // }
+      refetch();
+      toast.success("Company added successfully.");
+      return companyData?.insert_companies_one;
     } catch (error) {
       console.error("Error adding company:", error);
-      toast.error("Failed to add company. Please try again.");
+      throw error;
     }
   };
 
@@ -245,7 +334,7 @@ export function useCompanies() {
       });
       setCompanies((prev) => prev.filter((c) => c.id !== id));
       toast.success("Company deleted successfully.");
-      refetch(); // refetch companies after deletion
+      refetch();
     } catch (error) {
       console.error("Error deleting company:", error);
       toast.error("Failed to delete company. Please try again.");
@@ -267,7 +356,7 @@ export function useCompanies() {
         variables,
       });
       toast.success("Company updated successfully.");
-      refetch(); // refetch companies after updating
+      refetch();
     } catch (error) {
       console.error("Error updating company:", error);
       toast.error("Failed to update company. Please try again.");
@@ -283,28 +372,6 @@ export function useCompanies() {
     });
   };
 
-  const formatLocation = (location: Company["location"]) => {
-    if (typeof location === "string") return location;
-    if (location?.city && location?.country) {
-      return `${location.city}, ${location.country}`;
-    }
-    return location?.raw_location || "N/A";
-  };
-
-  const formatIndustry = (industry: Company["industry"]) => {
-    if (typeof industry === "string") return industry;
-    return industry?.primary;
-  };
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "N/A";
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
   return {
     companies: filteredCompanies,
     allCompanies: companies,
@@ -317,8 +384,5 @@ export function useCompanies() {
     addCompany,
     deleteCompany,
     updateCompany,
-    formatLocation,
-    formatIndustry,
-    formatDate,
   };
 }

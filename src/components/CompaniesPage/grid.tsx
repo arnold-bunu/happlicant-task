@@ -1,5 +1,18 @@
-"use client";
+/**
+ * Renders a responsive grid of company cards.
+ *
+ * Each card displays company information including logo, name, website, description,
+ * location, industry, employee count, and founding year. Cards also provide edit and delete
+ * actions via buttons that appear on hover.
+ *
+ * @param companies - Array of company objects to display.
+ * @param onDelete - Callback invoked when the delete button is clicked, receives the company ID.
+ * @param onEdit - Optional callback invoked when the edit button is clicked, receives the company object.
+ *
+ * @returns A grid layout of animated company cards.
+ */
 
+"use client";
 import type { Company } from "@/types/company";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,25 +27,19 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import CompanyLogo from "./companyLogo";
+import { formatLocation, formatIndustry } from "@/lib/utils";
 
 interface CompanyCardGridProps {
   companies: Company[];
   onDelete: (id: string) => void;
+  onEdit?: (company: Company) => void;
 }
 
-export function CompanyCardGrid({ companies, onDelete }: CompanyCardGridProps) {
-  const formatLocation = (location: Company["location"]) => {
-    if (typeof location === "string") return location;
-    if (location?.city && location?.country) {
-      return `${location.city}, ${location.country}`;
-    }
-    return location?.raw_location || "N/A";
-  };
-  const formatIndustry = (industry: Company["industry"]) => {
-    if (typeof industry === "string") return industry;
-    return industry?.primary;
-  };
-
+export function CompanyCardGrid({
+  companies,
+  onDelete,
+  onEdit,
+}: CompanyCardGridProps) {
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {companies.map((company, index) => (
@@ -56,7 +63,7 @@ export function CompanyCardGrid({ companies, onDelete }: CompanyCardGridProps) {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => onDelete(company.id)}
+                    onClick={() => onEdit && onEdit(company)}
                     className="opacity-0 transition-opacity group-hover:opacity-100"
                   >
                     <PenSquareIcon className="h-4 w-4" />

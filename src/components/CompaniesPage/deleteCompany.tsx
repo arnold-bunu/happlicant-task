@@ -1,5 +1,27 @@
-"use client";
+/**
+ * A dialog component for confirming company deletion.
+ *
+ * @component
+ * @param {Object} props - The component props
+ * @param {boolean} props.open - Controls the visibility of the dialog
+ * @param {(value: boolean) => void} props.onOpenChange - Callback function when dialog open state changes
+ * @param {() => Promise<void>} props.onConfirm - Callback function to execute when deletion is confirmed
+ * @param {string} props.companyName - Name of the company to be deleted
+ *
+ * @returns A modal dialog with confirmation message and action buttons
+ *
+ * @example
+ * ```tsx
+ * <DeleteDialog
+ *   open={isOpen}
+ *   onOpenChange={setIsOpen}
+ *   onConfirm={handleDelete}
+ *   companyName="Example Corp"
+ * />
+ * ```
+ */
 
+"use client";
 import { useState } from "react";
 import {
   AlertDialog,

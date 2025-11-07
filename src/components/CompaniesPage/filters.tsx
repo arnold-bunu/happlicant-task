@@ -1,3 +1,11 @@
+/**
+ * A component that renders filtering controls for companies.
+ *
+ *
+ * @returns {JSX.Element} A filtering interface with search input, location select,
+ * industry select, and clear filters button
+ */
+
 "use client";
 import React from "react";
 import { Search, X } from "lucide-react";
@@ -56,7 +64,6 @@ function Filters({
               <SelectValue placeholder="Location" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Locations</SelectItem>
               {locations.map((location) => (
                 <SelectItem key={location} value={location}>
                   {location}
@@ -75,7 +82,6 @@ function Filters({
               <SelectValue placeholder="Industry" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Industries</SelectItem>
               {industries.map((industry) => (
                 <SelectItem key={industry} value={industry}>
                   {industry}

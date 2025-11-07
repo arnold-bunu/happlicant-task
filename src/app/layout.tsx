@@ -23,9 +23,9 @@ export default function RootLayout({
     <html lang="en" className={`${geist.variable}`}>
       <body>
         <ApolloProviderWrapper>
-        <Header />
-        {children}
-        <Toaster position="top-right" />
+          {/* <Header />  removed this because I decided to use a hook. normally I would also add a wrapper here and wrap the application */}
+          {children}
+          <Toaster position="top-right" />
         </ApolloProviderWrapper>
       </body>
     </html>

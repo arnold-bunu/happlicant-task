@@ -1,27 +1,22 @@
-export type Location =
-  | string
-  | {
-      address?: string;
-      city?: string;
-      zip_code?: string;
-      country?: string;
-      raw_location?: string;
-    };
+export type Location = {
+  address?: string;
+  city?: string;
+  zip_code?: string;
+  country?: string;
+  raw_location?: string;
+};
 
-export type Industry =
-  | string
-  | {
-      primary: string;
-      sectors?: string[];
-    };
+export type CEO = {
+  name?: string;
+  since?: number;
+  bio?: string;
+};
 
-export type CEO =
-  | string
-  | {
-      name: string;
-      since?: number;
-      bio?: string;
-    };
+export type Industry = {
+  primary?: string;
+  industries?: string[];
+  sectors?: string[];
+};
 
 export type Company = {
   id: string;
@@ -35,13 +30,13 @@ export type Company = {
   founded?: number;
   ceo?: CEO;
   created_at: string;
-  active?: boolean; // adding active field for delete operation. 
+  active?: boolean; // for soft delete or toggling active state
 };
 
-export type ViewMode = "table" | "grid"
+export type ViewMode = "table" | "grid";
 
 export interface CompanyFilters {
-  search: string
-  location: string
-  industry: string
+  search: string;
+  location: string;
+  industry: string;
 }

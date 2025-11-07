@@ -1,8 +1,18 @@
+/**
+ * Renders a table displaying a list of companies with their details.
+ *
+ * @param companies - Array of company objects to display in the table.
+ * @param onDelete - Callback function invoked when a company is deleted.
+ * @param onEdit - Callback function invoked when a company is edited.
+ *
+ * Displays columns for company name, location, industry, number of employees, founding year, creation date, and actions.
+ */
 "use client";
 import React, { useEffect } from "react";
 import type { Company } from "@/types/company";
 import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import TableContent from "./tableContent";
+
 interface CompanyTableProps {
   companies?: Company[];
   onDelete: (id: string) => void;
@@ -14,10 +24,6 @@ export function CompanyTable({
   onDelete,
   onEdit,
 }: CompanyTableProps) {
-  useEffect(() => {
-    console.log("Companies in Table:", companies);
-  }, [companies]);
-
   return (
     <div className="bg-card rounded-lg border">
       <Table>
