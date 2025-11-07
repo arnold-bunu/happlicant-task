@@ -89,7 +89,7 @@ export default function CompaniesPage() {
   return (
     <div className="bg-background flex h-screen flex-col">
       <Header />
-      <div className="mx-auto flex flex-1 flex-col overflow-hidden px-4 py-8">
+      <div className="mx-auto flex w-full flex-1 flex-col overflow-hidden px-4 py-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
