@@ -52,13 +52,13 @@ describe("CompanyTable", () => {
     );
 
     const deleteButtons = screen.getAllByRole("button", { name: /delete/i });
-    fireEvent.click(deleteButtons[0]);
+    fireEvent.click(deleteButtons[0]!);
 
     expect(onDelete).toHaveBeenCalledWith("1");
   });
 
   it("fires onEdit when edit button is clicked", () => {
-    const onEdit = vi.fn();
+    const onEdit = vi.fn<(company: Company) => void>();
 
     renderWithProviders(
       <CompanyTable
@@ -69,9 +69,12 @@ describe("CompanyTable", () => {
     );
 
     const editButtons = screen.getAllByRole("button", { name: /edit/i });
-    fireEvent.click(editButtons[0]);
+    fireEvent.click(editButtons[0]!);
 
     expect(onEdit).toHaveBeenCalled();
-    expect(onEdit.mock.calls[0][0].id).toBe("1");
+    const firstCall = onEdit.mock.calls[0]!;
+    const firstArg = firstCall[0] as Company;
+
+    expect(firstArg.id).toBe("1");
   });
 });

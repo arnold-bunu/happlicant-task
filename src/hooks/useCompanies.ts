@@ -40,6 +40,7 @@ import {
   INSERT_INDUSRTY,
   INSERT_SECTOR,
   INSERT_COMPANY_LOCATION,
+  INSERT_CEO,
 } from "@/gql/mutations/companies";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { toast } from "sonner";
@@ -72,7 +73,9 @@ interface GetCompaniesResponse {
 }
 
 export function useCompanies() {
-  const { data, refetch } = useQuery<GetCompaniesResponse>(GET_COMPANIES);
+  const { data, refetch } = useQuery<GetCompaniesResponse>(GET_COMPANIES, {
+    fetchPolicy: "cache-and-network",
+  });
   const [insertCompanyMutation] = useMutation<{
     insert_companies_one: Company;
   }>(INSERT_COMPANY);
@@ -97,6 +100,10 @@ export function useCompanies() {
       raw_location?: string;
     }
   >(INSERT_COMPANY_LOCATION);
+  const [insertCeoMutation] = useMutation<
+    { insert_ceo_one: { id: string } },
+    { company_id: string; name?: string; since?: number; bio?: string }
+  >(INSERT_CEO);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [filters, setFilters] = useState<CompanyFilters>({
     search: "",
@@ -306,6 +313,17 @@ export function useCompanies() {
       //     variables: { company_id: companyId, sector_id: sectorId },
       //   });
       // }
+
+      if (company.ceo) {
+        await insertCeoMutation({
+          variables: {
+            company_id: companyId!,
+            name: company.ceo.name,
+            since: company.ceo.since,
+            bio: company.ceo.bio,
+          },
+        });
+      }
       refetch();
       toast.success("Company added successfully.");
       return companyData?.insert_companies_one;

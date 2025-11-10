@@ -33,7 +33,8 @@ function TableContent({ companies, onDelete, onEdit }: TableContentProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.05 }}
-          className="group"
+          className="group hover:bg-muted/50 cursor-pointer"
+          onClick={() => (window.location.href = `/companies/${company.id}`)}
         >
           <TableCell className="font-medium">
             <div className="flex items-center gap-3">
@@ -46,20 +47,24 @@ function TableContent({ companies, onDelete, onEdit }: TableContentProps) {
               </div>
               <div>
                 <div className="text-foreground font-semibold">
-                  {company?.name}
+                  {company.name}
                 </div>
-                <a
-                  href={company.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs transition-colors"
-                >
-                  {company?.website?.replace(/^https?:\/\//, "")}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
+                {company.website && (
+                  <a
+                    href={company.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 text-xs transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {company.website.replace(/^https?:\/\//, "")}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                )}
               </div>
             </div>
           </TableCell>
+
           <TableCell>{formatLocation(company?.location)}</TableCell>
           <TableCell>{formatIndustry(company?.industry)}</TableCell>
           <TableCell>{company?.employee_count?.toLocaleString()}</TableCell>
@@ -73,7 +78,10 @@ function TableContent({ companies, onDelete, onEdit }: TableContentProps) {
                 aria-label="edit"
                 variant="ghost"
                 size="icon"
-                onClick={() => onEdit(company)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(company);
+                }}
               >
                 <PenSquareIcon className="text-primary h-4 w-4" />
               </Button>
@@ -82,8 +90,11 @@ function TableContent({ companies, onDelete, onEdit }: TableContentProps) {
               aria-label="delete"
               variant="ghost"
               size="icon"
-              onClick={() => onDelete(company.id)}
               className="opacity-0 transition-opacity group-hover:opacity-100"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(company.id);
+              }}
             >
               <Trash2 className="text-destructive h-4 w-4" />
             </Button>

@@ -1,3 +1,5 @@
+// add company modal with input validation
+
 "use client";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -38,14 +40,25 @@ import type { Company } from "@/types/company";
 import { cn } from "@/lib/utils";
 
 const companySchema = z.object({
-  // Basic Company Info
   name: z.string().min(2, "Company name must be at least 2 characters"),
   description: z
     .string()
     .min(10, "Description must be at least 10 characters")
     .optional(),
-  website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  logo_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  website: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .refine((val) => !val || /^https?:\/\/|^www\./.test(val), {
+      message: "Must be a valid URL",
+    }),
+  logo_url: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .refine((val) => !val || /^https?:\/\/|^www\./.test(val), {
+      message: "Must be a valid URL",
+    }),
   employee_count: z.coerce
     .number()
     .min(1, "Must have at least 1 employee")
@@ -56,19 +69,13 @@ const companySchema = z.object({
     .min(1800, "Founded year must be after 1800")
     .max(new Date().getFullYear(), "Founded year cannot be in the future")
     .optional(),
-
-  // Location Info
   address: z.string().optional(),
   city: z.string().min(2, "City is required"),
   zip_code: z.string().optional(),
   country: z.string().min(2, "Country is required"),
   raw_location: z.string().optional(),
-
-  // Industry & Sectors
   industries: z.array(z.string()).min(1, "At least one industry is required"),
   sectors: z.array(z.string()).optional(),
-
-  // CEO Info
   ceo_name: z.string().min(2, "CEO name is required"),
   ceo_since: z.coerce
     .number()
@@ -232,7 +239,7 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
+        <Button aria-label="add company" className="gap-2">
           <Plus className="h-4 w-4" />
           Add Company
         </Button>
@@ -655,6 +662,7 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
 
               <div className="flex gap-3">
                 <Button
+                  aria-label="cancel adding company"
                   type="button"
                   variant="outline"
                   onClick={() => handleOpenChange(false)}
@@ -674,7 +682,11 @@ export function CompanyFormDialog({ onAdd }: CompanyFormDialogProps) {
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                 ) : (
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button
+                    aria-label="submit company"
+                    type="submit"
+                    disabled={isSubmitting}
+                  >
                     {isSubmitting && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}

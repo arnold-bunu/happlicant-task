@@ -48,6 +48,8 @@ export function CompanyCardGrid({
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: index * 0.05 }}
+          onClick={() => (window.location.href = `/companies/${company.id}`)}
+          className="cursor-pointer"
         >
           <Card className="group flex h-full flex-col transition-shadow hover:shadow-lg">
             <CardHeader className="space-y-4">
@@ -63,7 +65,10 @@ export function CompanyCardGrid({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => (onEdit ? onEdit(company) : null)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit?.(company);
+                    }}
                     className="opacity-0 transition-opacity group-hover:opacity-100"
                   >
                     <PenSquareIcon className="h-4 w-4" />
@@ -71,7 +76,10 @@ export function CompanyCardGrid({
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => onDelete(company.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(company.id);
+                    }}
                     className="opacity-0 transition-opacity group-hover:opacity-100"
                   >
                     <Trash2 className="text-destructive h-4 w-4" />

@@ -203,6 +203,7 @@ export default function CompaniesPage() {
               )}
             </div>
           ) : viewMode === "table" ? (
+            // table view
             <CompanyTable
               companies={companies}
               onDelete={(id) => {
@@ -212,6 +213,7 @@ export default function CompaniesPage() {
               onEdit={handleEdit}
             />
           ) : (
+            // card view
             <CompanyCardGrid
               companies={companies}
               onDelete={(id) => {

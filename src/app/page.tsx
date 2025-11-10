@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { GithubIcon, MailIcon } from "lucide-react";
+import { GithubIcon, MailIcon, User2 } from "lucide-react";
 
 export default function HomePage() {
   return (
@@ -19,6 +19,13 @@ export default function HomePage() {
           <Button variant="outline" size="lg">
             <GithubIcon className="h-4 w-4" />
             View Repository
+          </Button>
+        </Link>
+
+        <Link href="/companies">
+          <Button variant="outline" size="lg">
+            <User2 className="h-4 w-4" />
+            Arnold Bunu
           </Button>
         </Link>
 

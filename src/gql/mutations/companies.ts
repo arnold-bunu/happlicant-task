@@ -108,7 +108,7 @@ const INSERT_CEO = gql`
     $since: Int
     $bio: String
   ) {
-    insert_ceo_one(
+    insert_ceos_one(
       object: { company_id: $company_id, name: $name, since: $since, bio: $bio }
     ) {
       id

@@ -51,8 +51,23 @@ const editCompanySchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .optional(),
-  website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  logo_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  website: z
+    .string()
+    .optional()
+    .or(z.literal(""))
+    .refine((val) => !val || /^https?:\/\/|^www\./.test(val), {
+      message: "Must be a valid URL",
+    }),
+  logo_url: z
+    .string()
+    .trim()
+    .refine(
+      (val) =>
+        val === "" ||
+        /^(https?:\/\/)?(www\.)?[a-z0-9.-]+\.[a-z]{2,}.*$/i.test(val),
+      { message: "Must be a valid URL" },
+    )
+    .optional(),
   employee_count: z.coerce
     .number()
     .min(1, "Must have at least 1 employee")
@@ -112,6 +127,7 @@ export function EditCompanyDialog({
 
     // only changing these values for demo purposes.
     setIsSubmitting(true);
+    console.log(values);
     try {
       await onUpdate(company.id, {
         name: values.name,
@@ -263,7 +279,7 @@ export function EditCompanyDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button aria-label="edit" type="submit" disabled={isSubmitting}>
                 {isSubmitting && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 )}

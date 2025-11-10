@@ -57,4 +57,27 @@ const GET_INDUSTRY_SECTORS = gql`
     }
   }
 `;
-export { GET_COMPANIES, GET_INDUSTRIES, GET_INDUSTRY_SECTORS };
+
+const GET_COMPANIES_FOR_TABLE = gql`
+  query CompaniesTable {
+    companies {
+      id
+      name
+      website
+      logo_url
+      founded
+      employee_count
+      company_locations {
+        city
+        country
+      }
+    }
+  }
+`;
+
+export {
+  GET_COMPANIES,
+  GET_INDUSTRIES,
+  GET_INDUSTRY_SECTORS,
+  GET_COMPANIES_FOR_TABLE,
+};

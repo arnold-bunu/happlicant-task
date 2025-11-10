@@ -22,7 +22,19 @@ const createApolloClient = () => {
     link: new HttpLink({
       uri: process.env.NEXT_PUBLIC_HASURA_GRAPHQL_ENDPOINT!,
     }),
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        Query: {
+          fields: {
+            companies: {
+              merge(existing, incoming) {
+                return incoming;
+              },
+            },
+          },
+        },
+      },
+    }),
   });
 };
 
